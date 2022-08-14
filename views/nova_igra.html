@@ -1,0 +1,98 @@
+% rebase('base.html')
+
+
+<div class="d-flex justify-content-center">
+    <h2>Izberi željene nastavitve</h2>
+</div>
+
+<div class="d-flex justify-content-center">
+    <p><br></p>
+    <h4>Izberi nasprotnika</h4>
+</div>
+
+
+<div class="d-flex justify-content-center">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+        <form action="/nova-igra-posodobi/{{argumenti['tezavnost']}}/{{argumenti['velikost']}}/{{argumenti['barva']}}/"
+            method="post">
+            <input type="radio" class="btn-check" name="nasprotnik" id="nasprotnik1" autocomplete="off" value="1"
+                {{'checked' if argumenti['nasprotnik'] else '' }}>
+            <button type="submit" class="btn btn-outline-primary" for="nasprotnik1">Proti robotskemu
+                nasprotniku</button>
+        </form>
+
+
+
+        <form action="/nova-igra-posodobi/0/{{argumenti['velikost']}}/{{argumenti['barva']}}/" method="post">
+
+            <input type="radio" class="btn-check" name="nasprotnik" id="nasprotnik0" autocomplete="off" value="0"
+                {{'checked' if not argumenti['nasprotnik'] else '' }}>
+            <button type="submit" class="btn btn-outline-primary" for="nasprotnik0">Proti sočloveku</button>
+        </form>
+    </div>
+    <p></p>
+</div>
+
+
+% if argumenti['nasprotnik']:
+<h4>Izberi težavnostno stopnjo</h4>
+<i>Večja stopnja, močnejši bo robot</i><br>
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+    % for i in range(1, 11):
+
+    <form action="/nova-igra-posodobi/{{i * argumenti['nasprotnik']}}/{{argumenti['velikost']}}/{{argumenti['barva']}}/" method="post">
+
+        <input type="radio" class="btn-check" name="tezavnost" id="tezavnost{{i}}" autocomplete="off" 
+        {{'checked' if i==argumenti['tezavnost'] else 0}}>
+        <button type="submit" class="btn btn-outline-primary" for="tezavnost{{i}}">{{f'{i}'}}</button>
+
+    </form>
+    %end
+</div>
+% end
+<p></p>
+
+
+
+
+<h4>Izberi velikost</h4>
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+    % for i in range(6, 16, 2):
+    <form action="/nova-igra-posodobi/{{argumenti['tezavnost'] * argumenti['nasprotnik']}}/{{i}}/{{argumenti['barva']}}/" method="post">
+    <input type="radio" class="btn-check" name="velikost" id="velikost{{i}}" autocomplete="off" 
+    {{'checked' if i==argumenti['velikost'] else ''}}>
+    <button type="submit" class="btn btn-outline-primary" for="velikost{{i}}">{{f'{i} x {i}'}}</button>
+</form>
+    %end
+</div>
+<p></p>
+
+% barve = ['Naključna barva', 'Beli', 'Črni']
+<h4>Izberi barvo</h4>
+<i>V primeru izbire človek proti človeku bo dobila trenutno prijavljena oseba izbrano barvo.<br></i>
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+% for i in (0, 1, -1):
+    <form action="/nova-igra-posodobi/{{argumenti['tezavnost'] * argumenti['nasprotnik']}}/{{argumenti['velikost']}}/{{i}}/" method="post">
+    <input type="radio" class="btn-check" name="barva" id="barva{{i}}" autocomplete="off" {{'checked' if i==argumenti['barva'] else ''}}>
+    <button type="submit" class="btn btn-outline-primary" for="barva0">{{barve[i]}}</button>
+    </form>
+% end
+</div>
+
+
+<p><br></p>
+
+
+<form action="/ustvari-novo-igro/" method="post">
+    
+% if not (argumenti['uporabnik'] is None):
+Po vpisu pritisnite gumo ob strani, da se preveri vnos uporabniškega imena in gesla.
+% end
+
+
+    <div class="d-flex justify-content-center">
+        <input class="btn btn-primary btn-lg" type="submit" value="Začni novo igro">
+    </div>
+</form>
+
+<div>Tu je neko besedilo</div>

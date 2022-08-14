@@ -2,11 +2,10 @@
 
 def update(state, y, x, points, directions, n, change=True):
     # to je treba še narediti
-    points_diff = [0 for i in range(4)]
     stone = {1:-1, 2:0}.get(n, 0 if (n + 1) % 2 == 0 else 1 - (n % 4))
     color = 1 - 2 * ((n % 4) // 2) if n != 1 else -1
     for i in range(4):
-        pass
+        update_one_board(state[i], y, x, points, directions[i], color, stone, change=change)
 
 
 def update_one_board(board, y, x, points_diff, directions, color, stone, change=True):
@@ -89,17 +88,41 @@ def update_one_board(board, y, x, points_diff, directions, color, stone, change=
         
 
     if change:
+        if k0 > 0 and k1 > 0:
+            board[y][x] = (k0 * stone, k1 * stone)
+        else:
             board[y][x] = stones_in_seq * stone
-            if k0 > 0:
-                board[y + k0 * dy0][x + k0 * dx0] = stones_in_seq * stone
-            if k1 > 0:
-                board[y + k1 * dy1][x + k1 * dx1] = stones_in_seq * stone
+
+        if k0 > 0:
+            board[y + k0 * dy0][x + k0 * dx0] = stones_in_seq * stone
+        if k1 > 0:
+            board[y + k1 * dy1][x + k1 * dx1] = stones_in_seq * stone
+
+def undo(state, y, x, directions):
+    for i, j in enumerate(directions):
+        dy0, dx0 = j[0]
+        dy1, dx1 = j[1]
+        board = state[i]
+        if type(board[y][x]) == type((0,)):
+            k0, k1 = board[y][x]
+            board[y + abs(k0) * dy0][x + abs(k0) * dx0] = k0
+            board[y + abs(k1) * dy1][x + abs(k1) * dx1] = k1
+        else:
+            k = board[y][x]
+            if abs(k) == 1:
+                pass
+            elif (0 if board[y + dy0][x + dx0] is None else board[y + dy0][x + dx0]) * k > 0:
+                board[y + (abs(k) - 1) * dy0][x + (abs(k) - 1) * dx0] = (k - 1 if k > 0 else k + 1)
+            else:
+                board[y + (abs(k) - 1) * dy1][x + (abs(k) - 1) * dx1] = (k - 1 if k > 0 else k + 1)
+            
+        board[y][x] = None
+
+
+
+
+
     
-
-
-
-
-
 
 
 def ai(move_sequence, y, x):
@@ -112,6 +135,11 @@ def ai(move_sequence, y, x):
     for i, j in enumerate(move_sequence):
         y, x, z = j
         update(state, y + 1, x + 1, points, directions, i)
+
+    for i in state:
+        print(i)
+    print(points)
+
         
 
 
@@ -121,8 +149,18 @@ for n in range(10):
 
 a = [[None for i in range(7)]]
 points_diff = [0, 0, 0, 0]
-update_one_board(a, 0, 2, points_diff, ((0, 1), (0, -1)), 1, 1, change=True)
+update_one_board(a, 0, 2, points_diff, ((0, 1), (0, -1)), -1, -1, change=True)
 update_one_board(a, 0, 1, points_diff, ((0, 1), (0, -1)), 1, 1, change=True)
 update_one_board(a, 0, 3, points_diff, ((0, 1), (0, -1)), -1, -1, change=True)
+update_one_board(a, 0, 5, points_diff, ((0, 1), (0, -1)), -1, -1, change=True)
+print(a)
+update_one_board(a, 0, 4, points_diff, ((0, 1), (0, -1)), -1, -1, change=True)
 
-print(a, points_diff)
+
+print(a, points_diff, )
+undo([a,], 0, 4, (((0, 1), (0, -1)),))
+print(a)
+undo([a,], 0, 1, (((0, 1), (0, -1)),))
+print(a)
+
+# ai([(0, 0, 0), (1, 1, 0), (0, 1, 0), (1, 2, 0), (2, 0, 0), (5, 5, 0), (4, 4, 0), (3, 3, 0), (1, 0, 0)], 6, 6)
