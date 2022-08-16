@@ -16,13 +16,13 @@
             <div class="grid-item">
                 <form action="/oddaj-potezo/{{i}}/{{j}}/" method="post">
                     % if igra.board[i][j] is None:
-                    <input type="image" style="max-width: 100%;" src="\static\prazno.png" alt="prazno">
+                    <input type="image" style="width: 100%;" src="\static\prazno.png" alt="prazno">
                     % elif igra.board[i][j] == 0:
-                    <input type="image" style="max-width: 100%;" src="\static\sivi.png" alt="sivi">
+                    <input type="image" style="width: 100%;" src="\static\sivi.png" alt="sivi">
                     % elif igra.board[i][j] == 1:
-                    <input type="image" style="max-width: 100%;" src="\static\beli.png" alt="beli">
+                    <input type="image" style="width: 100%;" src="\static\beli.png" alt="beli">
                     % else:
-                    <input type="image" style="max-width: 100%;" src="\static\crni.png" alt="crni">
+                    <input type="image" style="width: 100%;" src="\static\crni.png" alt="črni">
                     % end
 
                 </form>
@@ -36,36 +36,79 @@
 
         <div class="card" style="max-width: 100%;">
 
-            <div style="height: 10vh; border: solid black;">
+            <div style="height: 10vh; border: solid rgba(0, 0, 0, 0.274);">
                 <img src="\static\beli.png" alt="beli" style="height: 50%; ">{{igra.player1}}
             </div>
 
             <p></p>
 
             <div>
-                <div style="height: 10vh;">
+                <div style="height: 10vh; ">
                     <img src="\static\beli.png" alt="beli" style="height: 80%; ">
                     {{igra.points[0]}} : {{igra.points[1]}}
-                    <img src="\static\crni.png" alt="crni" style="height: 80%; ">
+                    <img src="\static\crni.png" alt="črni" style="height: 80%; ">
                 </div>
-                <p>Na potezi: <b style="color: rgba(197, 16, 16, 0.877);">{{igra.player1 if igra.which_player() == 1 else igra.player2}}</b></p>
 
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+                                    
+                % if len(igra.move_sequence) != igra.y * igra.x:
+                <p>Na potezi: <b style="color: rgba(197, 16, 16, 0.877);">{{igra.player1 if igra.which_player() == 1 else igra.player2}}</b></p>
                 
+                <div style="border: solid rgba(0, 0, 0, 0.274);">
+                <p>Naslednji kamen</p>
+                <div style="height: 10vh;">
+
+                        % kamen = igra.which_stone()
+                        
+                        % if kamen == 1:
+                        <img src="\static\beli.png" alt="beli" style="height: 80%; ">
+                        % elif kamen == -1:
+                        <img src="\static\crni.png" alt="črni" style="height: 80%; ">
+                        % else:
+                        <img src="\static\sivi.png" alt="sivi" style="height: 80%; ">
+                        % end
+
+                </div>
+                </div>
+
+                % else:
+                <p><b style="color: rgba(197, 16, 16, 0.877);">Konec igre</b></p>
+                % if igra.points[0] == igra.points[1]: 
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">REMI</b></p>
+                % elif igra.points[0] > igra.points[1]: 
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">ZMAGA: {{igra.player1}}</b></p>
+                % else:
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">ZMAGA: {{igra.player2}}</b></p>
+                % end
+                % end
+
+                <div class="row"  vertical-align: middle;">
+                % if igra.move_sequence:
+                <div class="col">
+                <form action="/potezo-nazaj/" method="post">
+                    <input type="submit" class="btn btn-primary" value="⇦" style="font-size: large;">
+                </form>
+                </div>
+                % end
+                
+                % if igra.take_backs:
+                <div class="col">
+                <form action="/potezo-naprej/" method="post">
+                    <input type="submit" class="btn btn-primary" value="⇨" style="font-size: large;">
+                </form>
+                </div>
+                % end
+                </div>
             </div>
             <p></p>
             
 
-            <div style="max-height: 10vh; border: solid black;">
-                <img src="\static\crni.png" alt="crni" style="height: 50%; ">{{igra.player2}}
+            <div style="height: 10vh; border: solid rgba(0, 0, 0, 0.274);;">
+                <img src="\static\crni.png" alt="črni" style="height: 50%; ">{{igra.player2}}
             </div>
 
         </div>
 
     </div>
-
-
-
 
 
 

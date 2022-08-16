@@ -1,13 +1,15 @@
-from igra import Game
+from igra import Game, Uporabnik
 import bottle
 import random
 import os
+
 directory_path = os.getcwd()
 
+with open("igre.json", "w") as d:
+    print("{}", file=d)
 
-argumenti = {'nasprotnik':1, 'uporabnik':None, 'tezavnost':1, 'velikost':6, 'barva':0,
-            'trenutna_igra':None, }
 
+argumenti = Uporabnik().argumenti
 
 
 @bottle.get("/")
@@ -27,48 +29,59 @@ def nova_igra(nasprotnik, velikost, barva):
 @bottle.post("/nova-igra-posodobi/<nasprotnik:int>/<velikost:int>/<barva:int>/")
 def nova_igra(nasprotnik, velikost, barva):
     print(nasprotnik, velikost, barva, type(nasprotnik))
-    argumenti['nasprotnik'] = bool(nasprotnik)
-    argumenti['tezavnost'] = nasprotnik if nasprotnik else argumenti['tezavnost']
-    argumenti['velikost'] = velikost
-    argumenti['barva'] = barva
-    bottle.redirect(f"/nova-igra/{argumenti['tezavnost'] if argumenti['nasprotnik'] else 0}/{argumenti['velikost']}/{argumenti['barva']}/")
-
+    argumenti["nasprotnik"] = bool(nasprotnik)
+    argumenti["tezavnost"] = nasprotnik if nasprotnik else argumenti["tezavnost"]
+    argumenti["velikost"] = velikost
+    argumenti["barva"] = barva
+    bottle.redirect(
+        f"/nova-igra/{argumenti['tezavnost'] if argumenti['nasprotnik'] else 0}/{argumenti['velikost']}/{argumenti['barva']}/"
+    )
 
 
 @bottle.post("/ustvari-novo-igro/")
 def ustvari_novo_igro():
-    if argumenti['nasprotnik']:
+    if argumenti["nasprotnik"]:
         nasprotnik = f"Računalnik, težavnostna stopnja {argumenti['tezavnost']}"
-    elif argumenti['uporabnik'] is None:
-        nasprotnik = 'uporabnik 2'
+    elif argumenti["uporabnik"] is None:
+        nasprotnik = "Uporabnik 2"
     else:
         nasprotnik = bottle.request.forms.getunicode("ime")
 
-    uporabnik = f"uporabnik {'1' if nasprotnik == 'uporabnik 2' else ''}" if argumenti['uporabnik'] is None else argumenti['uporabnik']
+    uporabnik = (
+        f"Uporabnik {'1' if nasprotnik == 'Uporabnik 2' else ''}"
+        if argumenti["uporabnik"] is None
+        else argumenti["uporabnik"]
+    )
 
-    #print(nasprotnik)
-    r = random.randbytes(1) if not argumenti['barva'] else argumenti['barva']
-    argumenti['trenutna_igra'] = Game(
-    size_y=argumenti['velikost'], # to bi se dalo spremeniti
-    size_x=argumenti['velikost'],
-    player1= uporabnik if r == 1 else nasprotnik, 
-    player2= nasprotnik if r == 1 else uporabnik, 
-    ai_move= not r if argumenti['nasprotnik'] else None, ai_version=argumenti['tezavnost'])
+    # print(nasprotnik)
+    r = random.randint(0, 1) if not argumenti["barva"] else argumenti["barva"]
+    argumenti["trenutna_igra"] = Game(
+        size_y=argumenti["velikost"],  # to bi se dalo spremeniti
+        size_x=argumenti["velikost"],
+        player1=uporabnik if r == 1 else nasprotnik,
+        player2=nasprotnik if r == 1 else uporabnik,
+        ai_move=1 - 2 * r if argumenti["nasprotnik"] else None,
+        ai_version=argumenti["tezavnost"],
+    )
     bottle.redirect("/trenutna-igra/")
+
 
 @bottle.post("/oddaj-potezo/<y:int>/<x:int>/")
 def oddaj_potezo(y, x):
-    argumenti['trenutna_igra'].move(y, x) # loop
+    argumenti["trenutna_igra"].loop(y, x)  # loop
     bottle.redirect("/trenutna-igra/")
+
 
 @bottle.post("/potezo-nazaj/")
 def oddaj_potezo():
-    argumenti['trenutna_igra'].take_back()
+    argumenti["trenutna_igra"].take_back()
+    # print(argumenti["trenutna_igra"].take_backs)
     bottle.redirect("/trenutna-igra/")
+
 
 @bottle.post("/potezo-naprej/")
 def oddaj_potezo():
-    argumenti['trenutna_igra'].undo_take_back()
+    argumenti["trenutna_igra"].undo_take_back()
     bottle.redirect("/trenutna-igra/")
 
 
@@ -82,31 +95,10 @@ def nova_igra():
     return bottle.template("navodila.html", argumenti=argumenti)
 
 
-@bottle.route('/static/<filename>')
+@bottle.route("/static/<filename>")
 def server_static(filename):
     print(directory_path, filename)
-    return bottle.static_file(filename, root=f'{directory_path}\static')
-
-
-#  @bottle.get("/nova-igra/nasprotnik/<argumenti>/")
-#  def nova_igra(argumenti):
-#      print(argumenti)
-#      return bottle.template("nova_igra_nasprotnik.html", arg=str_to_dict(argumenti))
-#  
-#  
-#  @bottle.get("/nova-igra/barva/<argumenti>/")
-#  def nova_igra(argumenti):
-#      return bottle.template("nova_igra_barva.html", arg=str_to_dict(argumenti))
-#  
-#  
-#  @bottle.get("/nova-igra/velkost/<argumenti>/")
-#  def nova_igra(argumenti):
-#      return bottle.template("nova_igra_velikost.html", arg=str_to_dict(argumenti))
-
-
-# @bottle.get('/nekaj/<argumenti>/'):
-# def nekaj(argumenti
-# ):
+    return bottle.static_file(filename, root=f"{directory_path}\static")
 
 
 bottle.run(debug=True, reloader=True)
