@@ -9,7 +9,8 @@ with open("igre.json", "w") as d:
     print("{}", file=d)
 
 
-argumenti = Uporabnik().argumenti
+uporabnik = Uporabnik()
+argumenti = uporabnik.argumenti
 
 
 @bottle.get("/")
@@ -86,7 +87,8 @@ def oddaj_potezo():
 
 
 @bottle.get("/trenutna-igra/")
-def nova_igra():
+def trenutna_igra():
+    global argumenti
     return bottle.template("trenutna_igra.html", argumenti=argumenti)
 
 
@@ -95,10 +97,66 @@ def nova_igra():
     return bottle.template("navodila.html", argumenti=argumenti)
 
 
+@bottle.get("/uporabniski-racun/")
+def uporabniski_racun():   
+    return bottle.template("uporabniski_racun.html", argumenti=argumenti)
+
+
+@bottle.post("/prijava/")
+def uporabniski_racun_prijava():
+    global argumenti
+    uporabnisko_ime = bottle.request.forms.getunicode("uporabniskoIme")
+    geslo = bottle.request.forms.getunicode("geslo")
+    ustreza = uporabnik.prijava(uporabnisko_ime, geslo)
+    if ustreza is None:
+        argumenti = uporabnik.argumenti
+        print(argumenti)
+        bottle.redirect("/zgodovina/")
+    else:
+        uporabnik.argumenti["napacno_geslo"] = ustreza
+        bottle.redirect("/uporabniski-racun/")
+
+
+@bottle.post("/registracija/")
+def uporabniski_racun_registracija():
+    global argumenti
+    uporabnisko_ime = bottle.request.forms.getunicode("uporabniskoIme")
+    geslo = bottle.request.forms.getunicode("geslo")
+    ponovljeno_geslo = bottle.request.forms.getunicode("ponovnoGeslo")
+
+    ustreza = uporabnik.registacija(uporabnisko_ime, geslo, ponovljeno_geslo)
+    if ustreza is None:
+        argumenti = uporabnik.argumenti
+        bottle.redirect("/zgodovina/")
+    else:
+        uporabnik.argumenti["napacno_geslo"] = ustreza
+        bottle.redirect("/uporabniski-racun/")
+
+
+
+@bottle.post("/odjava/")
+def odjava():
+    global argumenti, uporabnik
+    uporabnik.odjava()
+    uporabnik = Uporabnik()
+    argumenti = uporabnik.argumenti
+    bottle.redirect("/uporabniski-racun/")
+    # uporabniski_racun()
+
+
+@bottle.get("/zgodovina/")
+def uporabniski_racun():
+    return bottle.template("zgodovina.html", argumenti=argumenti)
+
+
 @bottle.route("/static/<filename>")
 def server_static(filename):
-    print(directory_path, filename)
     return bottle.static_file(filename, root=f"{directory_path}\static")
+
+
+#@bottle.route("/static/<filename>")
+#def server_static(filename):
+#    return bottle.static_file(filename, root=f"{directory_path}\static")
 
 
 bottle.run(debug=True, reloader=True)

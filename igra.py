@@ -14,8 +14,31 @@
 
 from datetime import datetime
 import json
-from time import time
 import robot
+
+
+def n_to_pra(n, pra=[3, 2]):
+    i = pra[0]
+    while len(pra) - 1 < n:
+        k = 1
+        while pra[k] ** 2 <= i:
+            if i % pra[k] == 0:
+                break
+            else:
+                k += 1
+        else:
+            pra.append(i)
+        i += 2
+    pra[0] = i
+    return pra[n]
+
+
+def hash_geslo(str0):
+    # hash() ni konsistenten za "str"
+    s = 1
+    for i, j in enumerate(str0):
+        s *= pow(n_to_pra(i + 2), (ord(j)), 2 ** 32)
+    return hash(s)
 
 
 class Game:
@@ -109,10 +132,7 @@ class Game:
         while len(self.move_sequence) != self.game_length:
             if self.is_ai_move() and not li:
                 li = robot.ai(
-                    self.move_sequence,
-                    self.y,
-                    self.x,
-                    self.ai
+                    self.move_sequence, self.y, self.x, self.ai
                 )  # _________________________________________________ ALI BO TO OK !!
             elif li:
                 y, x = li.pop()
@@ -123,35 +143,42 @@ class Game:
     def take_back(self):
         # prepovedujem take back 1. poteze če jo je naredil ai
         # ai_move je beli := 1 in crni := -1 in beli ima prvo potezo
-        # if not self.ai_move is None:
-        # while len(self.move_sequence) > self.ai_move:
-        # self.take_backs.append(self.move_sequence.pop())
-        # print(self.which_player(len(self.move_sequence) - 1), (self.which_player(len(self.move_sequence) - 1) - 1) // 2)
-        # self.points[(self.which_player(len(self.move_sequence) - 1) - 1) // 2] -= self.take_backs[-1][2]
-        # self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
-        # if not self.is_ai_move(len(self.move_sequence) - 1):
-        #    break
+
+        while len(self.move_sequence) > (-1 if self.ai_move is None else self.ai_move):
+            self.take_backs.append(self.move_sequence.pop())
+            self.points[
+                self.which_player(len(self.move_sequence)) // 2
+            ] -= self.take_backs[-1][2]
+            self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
+            if not self.is_ai_move(len(self.move_sequence)) or (
+                not self.ai_move is None
+            ):
+                break
+        else:
+            return 0
         # else:
-        self.take_backs.append(self.move_sequence.pop())
-        self.points[
-            (self.which_player(len(self.move_sequence)) - 1) // 2
-        ] -= self.take_backs[-1][2]
-        self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
+        #     self.take_backs.append(self.move_sequence.pop())
+        #     self.points[
+        #         (self.which_player(len(self.move_sequence)) - 1) // 2
+        #     ] -= self.take_backs[-1][2]
+        #     self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
 
     def undo_take_back(self):
         # while self.take_backs:
         c = self.which_stone()
         self.move_sequence.append(self.take_backs.pop())
         self.board[self.move_sequence[-1][0]][self.move_sequence[-1][1]] = c
-        self.points[self.which_player(len(self.move_sequence))] += self.move_sequence[
-            -1
-        ][2]
+        self.points[
+           self.which_player(len(self.move_sequence)) // 2
+        ] += self.move_sequence[-1][2]
         #    if not self.is_ai_move():
         #        break
 
     def import_game(self, dict0):
         for key in dict0:
             setattr(self, key, dict0[key])
+        return self
+        
 
     def dump(self, comment):
         dict0 = self.__dict__
@@ -161,9 +188,9 @@ class Game:
 
 
 class Uporabnik:
-    def __init__(self, ime=None, geslo=0):
+    def __init__(self, ime=None, geslo=""):
         self.ime = ime
-        self.geslo = hash(geslo)
+        self.geslo = hash_geslo(geslo)
         self.igre = []
         self.vsa_zgodovina = {}
         self.argumenti = {
@@ -173,41 +200,74 @@ class Uporabnik:
             "velikost": 6,
             "barva": 0,
             "trenutna_igra": None,
-            "napacno_geslo": 0,
+            "napacno_geslo": 7,
         }
 
     def prijava(self, ime, geslo, datoteka1="racuni.json", datoteka2="igre.json"):
         with open(datoteka1) as racuni:
             racuni = json.load(racuni)
-        if racuni[ime].geslo == hash(geslo):
-            for key in racuni[ime]:
-                setattr(self, key, racuni[ime][key])
 
-            if not self.argumenti["trenutna_igra"] is None:
-                self.argumenti["trenutna_igra"] = Game(1, 1).import_game(
-                    self.argumenti["trenutna_igra"]
-                )
-
-            with open(datoteka2) as igre:
-                self.vsa_zgodovina = json.load(igre)
-
-            self.igre = self.vsa_zgodovina[self.ime].sorted(key=lambda x: x.date)
+        if racuni.get(ime, None) is None:
+            return 5
 
         else:
-            return 1
+            if racuni[ime]["geslo"] == hash_geslo(geslo):
+                for kljuc in racuni[ime]:
+                    setattr(self, kljuc, racuni[ime][kljuc])
+
+                if not self.argumenti["trenutna_igra"] is None:
+                    self.argumenti["trenutna_igra"] = Game(1, 1).import_game(
+                        self.argumenti["trenutna_igra"]
+                    )
+
+                with open(datoteka2) as igre:
+                    self.vsa_zgodovina = json.load(igre)
+
+                self.igre = sorted(
+                    self.vsa_zgodovina.get(self.ime, []), key=lambda x: x.date
+                )
+                return None
+
+            else:
+                return 1
+
+    def registacija(self, ime, geslo, ponovljeno_geslo, datoteka="racuni.json"):
+        print(ime, geslo, ponovljeno_geslo)
+        with open(datoteka) as racuni:
+            racuni = json.load(racuni)
+
+        if racuni.get(ime, None) is None and geslo == ponovljeno_geslo:
+            racuni[ime] = Uporabnik(ime, geslo).__dict__
+            with open(datoteka, "w", encoding="UTF-8") as d:
+                print(json.dumps(racuni), file=d)
+            self.prijava(ime, geslo)
+
+        else:
+            r = 1
+            if not racuni.get(ime, None) is None:
+                r *= 2
+            if geslo != ponovljeno_geslo:
+                r *= 3
+            return r
 
     def odjava(self, datoteka="racuni.json"):
         if self.ime == None:
             return
 
-        with open(datoteka) as json_file:
-            racuni = json.load(json_file)
+        with open(datoteka) as d:
+            racuni = json.load(d)
         racuni[self.ime] = self.__dict__
-        racuni[self.ime].argumenti["trenutna_igra"] = (
-            racuni[self.ime].argumenti["trenutna_igra"].__dict__
-        )
-        racuni[self.ime].igre = []
-        racuni[self.ime].vsa_zgodovina = {}
+        if not self.argumenti["trenutna_igra"] is None:
+            racuni[self.ime]["argumenti"]["trenutna_igra"] = (
+                racuni[self.ime]["argumenti"]["trenutna_igra"].__dict__
+            )
+        racuni[self.ime]["igre"] = []
+        racuni[self.ime]["vsa_zgodovina"] = {}
+
+        with open(datoteka, 'w') as d:
+            print(json.dumps(racuni) ,file=d)
+
+        # to ni dokoncano
 
     def shrani_pozicijo(self, komentar, datoteka="igre.json"):
         for i in (
@@ -215,10 +275,11 @@ class Uporabnik:
             self.argumenti["trenutna_igra"].player2,
         ):
             if self.vsa_zgodovina[i]:
-                self.vsa_zgodovina[i] += [self.argumenti["trenutna_igra"].dump(komentar)]
+                self.vsa_zgodovina[i] += [
+                    self.argumenti["trenutna_igra"].dump(komentar)
+                ]
             else:
                 self.vsa_zgodovina[i] = [self.argumenti["trenutna_igra"].dump(komentar)]
 
-
-        with open(datoteka, 'w', encoding='UTF-8') as d:
+        with open(datoteka, "w", encoding="UTF-8") as d:
             print(json.dumps(self.vsa_zgodovina), file=d)
