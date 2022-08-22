@@ -1,3 +1,27 @@
 % rebase('base.html')
 
-Tu bo zgodovinaaaa
+% if argumenti["uporabnik"] is None:
+<p><br></p>
+<div class="card text-center">
+    <div class="card-header">
+        Dragi uporabnik
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Zgodovina ni na voljo.</h5>
+        <p class="card-text">Za dostop do zgodovine se je potrebno prijaviti.</p>
+        <a href="/uporabniski-racun/"
+            class="btn btn-primary">Prijava</a>
+    </div>
+    <div class="card-footer text-muted">
+</div>
+
+% else:
+
+% li = sorted(argumenti["zgodovina"]().items(), key=lambda x: x[0])
+# argumenti["zgodovina"]() je enako kot uporabnik.self.igre
+% for i in li:
+
+% include('pozicija.html', igra=i, trenutna_igra=(not argumenti["trenutna_igra"] is None))
+
+
+% end

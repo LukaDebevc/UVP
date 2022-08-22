@@ -1,0 +1,58 @@
+% ime = igra.date
+% # trenutna_igra := True, če se že igra neka igra in False drugače
+
+
+<div class="row" style="width: 70vW; height: 30vh; vertical-align: middle;">
+    <div class="col" style="width: min(25vh, 25vw)">
+
+        <form action="/nadaljuj_pozicijo/{{ime}}/0/0/1" method="post">
+            <input type="image" style="width: 100%;" src="\static\{{igra.name}}.png" alt="Pozicija je bila shranjena {{igra.date}}">
+
+        </form>    
+    </div>
+    <div class="col">
+        <p> <h5> {{igra["player1"]}} {{igra["points"]}} {{igra["player2"]}}</h5>
+            <i>
+                {{igra["date"]}} <br>
+                {{igra.comment}}
+            </i>
+        </p>
+
+
+
+        <div class="row" style="width: 80%; vertical-align: middle;">
+
+            <div class="col">
+                <form action="/nadaljuj-pozicijo/{{ime}}/0/0/1/" method="post">
+                    <input type="submit" class="btn btn-primary" value="Nadaljuj" style="font-size: large;">
+                </form>
+            </div>
+
+            
+            % if trenutna_igra:
+            <div class="col">
+                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/1/0/1/" method="post">
+                    <input type="submit" class="btn btn-primary" value="Shrani in nadaljuj" style="font-size: large;">
+                </form>
+            </div>
+
+            <div class="col">
+                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/1/1/1/" method="post">
+                    <input type="submit" class="btn btn-primary" value="Shrani, nadaljuj in izbriši" style="font-size: large;">
+                </form>
+            </div>
+            % end
+
+            <div class="col">
+                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/0/1/0/" method="post">
+                    <input type="submit" class="btn btn-primary" value="Izbriši" style="font-size: large;">
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+

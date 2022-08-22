@@ -5,7 +5,7 @@ import os
 
 directory_path = os.getcwd()
 
-with open("igre.json", "w") as d:
+with open("json_datoteke\igre.json", "w") as d:
     print("{}", file=d)
 
 
@@ -57,7 +57,7 @@ def ustvari_novo_igro():
     # print(nasprotnik)
     r = random.randint(0, 1) if not argumenti["barva"] else argumenti["barva"]
     argumenti["trenutna_igra"] = Game(
-        size_y=argumenti["velikost"],  # to bi se dalo spremeniti
+        size_y=argumenti["velikost"],  # to bi se dalo spremeniti <---------------------------
         size_x=argumenti["velikost"],
         player1=uporabnik if r == 1 else nasprotnik,
         player2=nasprotnik if r == 1 else uporabnik,
@@ -88,7 +88,6 @@ def oddaj_potezo():
 
 @bottle.get("/trenutna-igra/")
 def trenutna_igra():
-    global argumenti
     return bottle.template("trenutna_igra.html", argumenti=argumenti)
 
 
@@ -147,6 +146,35 @@ def odjava():
 @bottle.get("/zgodovina/")
 def uporabniski_racun():
     return bottle.template("zgodovina.html", argumenti=argumenti)
+
+
+@bottle.post("/shrani-pozicijo/")
+def shrani_pozicijo():
+    uporabnik.shrani_pozicijo(bottle.request.forms.getunicode("komentar"))
+    bottle.redirect("/trenutna-igra/")
+
+
+
+@bottle.post("/nadaljuj-pozicijo/<ime>/<shrani>/<izbrisi>/<nadaljuj>")
+def nadaljuj_pozicijo(ime, shrani, izbrisi, nadaljuj):
+    if uporabnik.igre.get(ime, False):
+        igra = uporabnik.igre[ime]
+
+        if shrani:
+            uporabnik.shrani_pozicijo()
+        
+        if izbrisi:
+            uporabnik.izbrisi_pozicijo()
+        
+        if nadaljuj:
+            global argumenti  # mislim, da ni potrebno
+            argumenti["trenutna_igra"] = Game(1, 1).import_game(igra)
+            bottle.redirect("/trenutna-igra/")
+        else:
+            bottle.redirect("/zgodovina/")
+
+    else:
+        pass
 
 
 @bottle.route("/static/<filename>")
