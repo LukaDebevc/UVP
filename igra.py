@@ -16,6 +16,7 @@ from datetime import datetime
 import json
 import robot
 from PIL import Image
+import os
 
 
 def n_to_pra(n, pra=[3, 2]):
@@ -53,7 +54,7 @@ class Game:
         ai_version=None,
         starting_points=None,
     ):
-        self.date = datetime.now()
+        self.date = str(datetime.now())
         self.name = None
         self.comment = ""
         self.player1 = player1
@@ -61,7 +62,6 @@ class Game:
         self.y = size_y
         self.x = size_x
         self.board = [[None for i in range(self.y)] for j in range(self.x)]
-        self.pic = None
 
         self.move_sequence = []
         self.take_backs = []
@@ -180,11 +180,17 @@ class Game:
     def import_game(self, dict0):
         for key in dict0:
             setattr(self, key, dict0[key])
+
+        self.board = [y.copy() for y in self.board]
+        self.move_sequence = self.move_sequence.copy()
+        self.take_backs = self.take_backs.copy()
+        self.points = self.points.copy()
+
         return self
 
     def dump(self, comment):
         dict0 = self.__dict__
-        dict0["date"] = datetime.now()
+        dict0["date"] = str(datetime.now())
         dict0["comment"] = comment
 
         name = dict0["date"]
@@ -192,26 +198,26 @@ class Game:
             name = name.replace(i, "")
 
         dict0["name"] = name
-        self.picture(self, name)
+        self.picture(name)
         return dict0
 
-    def picture(self, name, loc="static\\zgodovina\\"):
+    def picture(self, name, loc='static/zgodovina/'):
         images = {
             x: Image.open(y)
             for x, y in zip(
                 (None, 1, -1, 0),
-                ("staric\\" + i for i in ("prazno.png, beli.png, crni.png")),
+                ("static/" + i for i in ("prazno.png", "beli.png", "crni.png", "sivi.png")),
             )
         }
         for i in images:
-            images[i].resize((80, 80))
+            images[i] = images[i].resize((80, 80))
 
-        size_x = 80 * self.x + 10 * (self.x - 1)
-        size_y = 80 * self.y + 10 * (self.y - 1)
+        size_x = 80 * self.x + 5 * (self.x - 1)
+        size_y = 80 * self.y + 5 * (self.y - 1)
         new_img = Image.new("RGB", (size_x, size_y), (20, 20, 20))
         for y in range(self.y):
             for x in range(self.x):
-                new_img.paste(images[self.board[y][x]], (x * 90, y * 90))
+                new_img.paste(images[self.board[y][x]], (x * 85, y * 85))
         new_img.save(loc + name + ".png")
 
 
@@ -219,7 +225,6 @@ class Uporabnik:
     def __init__(self, ime=None, geslo=""):
         self.ime = ime
         self.geslo = hash_geslo(geslo)
-        self.igre = {}
         self.vsa_zgodovina = {}
         self.argumenti = {
             "nasprotnik": 1,
@@ -233,14 +238,17 @@ class Uporabnik:
         }
 
     def vrni_igre(self):
-        return self.igre
-
+        print(self.vsa_zgodovina)
+        print()
+        print(self.vsa_zgodovina.get(self.ime, {}))
+        return self.vsa_zgodovina.get(self.ime, {})
+        
     def prijava(
         self,
         ime,
         geslo,
-        datoteka1="json_datoteke\\racuni.json",
-        datoteka2="json_datoteke\\igre.json",
+        datoteka1="json_datoteke/racuni.json",
+        datoteka2="json_datoteke/igre.json",
     ):
         with open(datoteka1) as racuni:
             racuni = json.load(racuni)
@@ -258,24 +266,26 @@ class Uporabnik:
                         self.argumenti["trenutna_igra"]
                     )
 
-                with open(datoteka2) as igre:
-                    self.vsa_zgodovina = json.load(igre)
+                with open(datoteka2) as d:
+                    self.vsa_zgodovina = json.loads("".join(d.readlines()))
 
-                self.igre = self.vsa_zgodovina.get(self.ime, {})
+                self.argumenti["zgodovina"] = self.vrni_igre
                 return None
 
             else:
                 return 1
 
     def registacija(
-        self, ime, geslo, ponovljeno_geslo, datoteka="json_datoteke\\racuni.json"
+        self, ime, geslo, ponovljeno_geslo, datoteka="json_datoteke/racuni.json"
     ):
-        print(ime, geslo, ponovljeno_geslo)
         with open(datoteka) as racuni:
-            racuni = json.load(racuni)
+            #print(racuni.readlines())
+            racuni = json.loads("".join(racuni.readlines()))
 
         if racuni.get(ime, None) is None and geslo == ponovljeno_geslo:
             racuni[ime] = Uporabnik(ime, geslo).__dict__
+            racuni[ime]["argumenti"]["zgodovina"] = None
+
             with open(datoteka, "w", encoding="UTF-8") as d:
                 print(json.dumps(racuni), file=d)
             self.prijava(ime, geslo)
@@ -288,7 +298,7 @@ class Uporabnik:
                 r *= 3
             return r
 
-    def odjava(self, datoteka="json_datoteke\racuni.json"):
+    def odjava(self, datoteka="json_datoteke/racuni.json"):
         if self.ime == None:
             return
 
@@ -301,34 +311,35 @@ class Uporabnik:
             ]["trenutna_igra"].__dict__
         racuni[self.ime]["igre"] = []
         racuni[self.ime]["vsa_zgodovina"] = {}
+        racuni[self.ime]["argumenti"]["zgodovina"] = None
 
         with open(datoteka, "w") as d:
             print(json.dumps(racuni), file=d)
 
         # to ni dokoncano
 
-    def shrani_pozicijo(self, komentar, datoteka="json_datoteke\igre.json"):
-
+    def shrani_pozicijo(self, komentar, datoteka="json_datoteke/igre.json"):
+        dict0 = self.argumenti["trenutna_igra"].dump(komentar)
+        self.argumenti["trenutna_igra"] = Game(1, 1).import_game(dict0)
         for i in (
             self.argumenti["trenutna_igra"].player1,
             self.argumenti["trenutna_igra"].player2,
-        ):
-            
-            dict0 = self.argumenti["trenutna_igra"].dump(komentar)
+        ):            
             if self.vsa_zgodovina.get(i, False):
-                self.vsa_zgodovina[i][dict0["name"]] = dict0
-                  
+                self.vsa_zgodovina[i][dict0["name"]] = dict0 
             else:
                 self.vsa_zgodovina[i] = {dict0["name"]:dict0}
+
+        print(self.vsa_zgodovina)
 
         with open(datoteka, "w", encoding="UTF-8") as d:
             print(json.dumps(self.vsa_zgodovina), file=d)
     
-    def izbrisi_pozicijo(self, ime_igre, datoteka="json_datoteke\igre.json"):
-        if self.igre.get(ime_igre, False):
-            del self.igre[ime_igre]
+    def izbrisi_pozicijo(self, ime_igre, datoteka1="json_datoteke/igre.json", datoteka2="static/zgodovina/"):
+        if self.vsa_zgodovina[self.ime].get(ime_igre, False):
+            del self.vsa_zgodovina[self.ime][ime_igre]
 
-            with open(datoteka, "w", encoding="UTF-8") as d:
+            with open(datoteka1, "w", encoding="UTF-8") as d:
                 print(json.dumps(self.vsa_zgodovina), file=d)
 
-
+        os.remove(datoteka2 + ime_igre + ".png")

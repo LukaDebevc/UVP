@@ -1,20 +1,22 @@
-% ime = igra.date
+% ime = igra["name"]
 % # trenutna_igra := True, če se že igra neka igra in False drugače
 
 
-<div class="row" style="width: 70vW; height: 30vh; vertical-align: middle;">
-    <div class="col" style="width: min(25vh, 25vw)">
+<div class="row" style="width: 70vW; height: 30vh; vertical-align: middle; 
+background-color: rgba(255, 255, 255, 0.26); border: solid black;">
+    <div class="col-0" style="width: 30%">
 
-        <form action="/nadaljuj_pozicijo/{{ime}}/0/0/1" method="post">
-            <input type="image" style="width: 100%;" src="\static\{{igra.name}}.png" alt="Pozicija je bila shranjena {{igra.date}}">
-
+        <form action="/nadaljuj-pozicijo/{{ime}}/10/" method="post">
+            <input type="image" style="height: min(25vh, 25vw); padding-top: 5vh;" src="\static\zgodovina\{{ime}}.png" alt="Pozicija je bila shranjena {{igra["date"]}}">
+            
         </form>    
     </div>
+
     <div class="col">
         <p> <h5> {{igra["player1"]}} {{igra["points"]}} {{igra["player2"]}}</h5>
             <i>
                 {{igra["date"]}} <br>
-                {{igra.comment}}
+                {{igra["comment"]}}
             </i>
         </p>
 
@@ -22,30 +24,37 @@
 
         <div class="row" style="width: 80%; vertical-align: middle;">
 
-            <div class="col">
-                <form action="/nadaljuj-pozicijo/{{ime}}/0/0/1/" method="post">
-                    <input type="submit" class="btn btn-primary" value="Nadaljuj" style="font-size: large;">
+            <div class="col" style="width: 50%;">
+                <form action="/nadaljuj-pozicijo/{{ime}}/5/" method="post">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Nadaljuj">
                 </form>
             </div>
 
             
             % if trenutna_igra:
-            <div class="col">
-                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/1/0/1/" method="post">
-                    <input type="submit" class="btn btn-primary" value="Shrani in nadaljuj" style="font-size: large;">
+            <div class="col" style="width: 50%;">
+                <form action="/nadaljuj-pozicijo/{{ime}}/10/" method="post">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Shrani in nadaljuj">
                 </form>
             </div>
 
-            <div class="col">
-                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/1/1/1/" method="post">
-                    <input type="submit" class="btn btn-primary" value="Shrani, nadaljuj in izbriši" style="font-size: large;">
+            <div class="col" style="width: 50%;">
+                <form action="/nadaljuj-pozicijo/{{ime}}/30/" method="post">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Shrani, nadaljuj in izbriši">
                 </form>
             </div>
             % end
 
-            <div class="col">
-                <form action="/shrani-nadaljuj-pozicijo/{{ime}}/0/1/0/" method="post">
-                    <input type="submit" class="btn btn-primary" value="Izbriši" style="font-size: large;">
+            <div class="col" style="width: 50%;">
+                <form action="/nadaljuj-pozicijo/{{ime}}/15/" method="post">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Nadaljuj in izbriši">
+                </form>
+            </div>
+
+
+            <div class="col" style="width: 50%;">
+                <form action="/nadaljuj-pozicijo/{{ime}}/3/" method="post">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Izbriši">
                 </form>
             </div>
 

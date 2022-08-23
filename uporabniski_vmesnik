@@ -5,8 +5,8 @@ import os
 
 directory_path = os.getcwd()
 
-with open("json_datoteke\igre.json", "w") as d:
-    print("{}", file=d)
+#with open("json_datoteke\igre.json", "w") as d:
+#    print("{}", file=d)
 
 
 uporabnik = Uporabnik()
@@ -154,33 +154,39 @@ def shrani_pozicijo():
     bottle.redirect("/trenutna-igra/")
 
 
-
-@bottle.post("/nadaljuj-pozicijo/<ime>/<shrani>/<izbrisi>/<nadaljuj>")
-def nadaljuj_pozicijo(ime, shrani, izbrisi, nadaljuj):
-    if uporabnik.igre.get(ime, False):
-        igra = uporabnik.igre[ime]
+@bottle.post("/nadaljuj-pozicijo/<ime>/<koda:int>/")
+def nadaljuj_pozicijo(ime, koda):
+    global argumenti
+    shrani, izbrisi, nadaljuj = (koda % 2 == 0), (koda % 3 == 0), (koda % 5 == 0)
+    if uporabnik.vsa_zgodovina[uporabnik.ime].get(ime, False):
+        igra = uporabnik.vsa_zgodovina[uporabnik.ime][ime]
 
         if shrani:
-            uporabnik.shrani_pozicijo()
+            uporabnik.shrani_pozicijo(argumenti["trenutna_igra"].comment)
         
         if izbrisi:
-            uporabnik.izbrisi_pozicijo()
+            uporabnik.izbrisi_pozicijo(ime)
         
         if nadaljuj:
-            global argumenti  # mislim, da ni potrebno
             argumenti["trenutna_igra"] = Game(1, 1).import_game(igra)
             bottle.redirect("/trenutna-igra/")
         else:
             bottle.redirect("/zgodovina/")
 
     else:
-        pass
+        assert False
+
+
+
+@bottle.route("/static/zgodovina/<filename>")
+def server_static(filename):
+    return bottle.static_file(filename, root=f"{directory_path}\static\zgodovina")
+
 
 
 @bottle.route("/static/<filename>")
 def server_static(filename):
     return bottle.static_file(filename, root=f"{directory_path}\static")
-
 
 #@bottle.route("/static/<filename>")
 #def server_static(filename):

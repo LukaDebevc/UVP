@@ -17,11 +17,18 @@
 
 % else:
 
-% li = sorted(argumenti["zgodovina"]().items(), key=lambda x: x[0])
-# argumenti["zgodovina"]() je enako kot uporabnik.self.igre
+% # {{argumenti["zgodovina"]()}}
+% li = sorted(argumenti["zgodovina"]().items(), key=lambda x: x[0], reverse = True)
+% # argumenti["zgodovina"]() je enako kot uporabnik.self.igre
+
+<div style="height: 5vh;"></div>
+
+% if not li:
+<i>Izgleda, da nimate nobenih shranjenih pozicij.</i>
+% end
 % for i in li:
 
-% include('pozicija.html', igra=i, trenutna_igra=(not argumenti["trenutna_igra"] is None))
+% include('pozicija.html', igra=i[1], trenutna_igra=(not argumenti["trenutna_igra"] is None))
 
 
 % end

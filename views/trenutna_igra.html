@@ -3,7 +3,9 @@
 % if not igra is None:
 
 <div class="row" style="width: 90vw; vertical-align: middle;">
-    <div class="col" style="width: 10vw"></div>
+    % if argumenti["uporabnik"] is None:
+        <div class="col" style="width: 1vw;"></div>
+    % end
     <div class="col" style="width: {{f'min({(60/igra.x*igra.y)}vw, {(90/igra.y*igra.y)})vh'}}">
 
         <div class="grid-container"
@@ -31,10 +33,10 @@
             % end
         </div>
     </div>
-    <div class="col" style="max-width: 25vw;">
-        <div style="height: 15vh;"></div>
+    <div class="col" style="width: 25vw;">
+        <div style="height: 10vh;"></div>
 
-        <div class="card" style="max-width: 100%;">
+        <div class="card" style="max-width: {{"100%" if argumenti["uporabnik"] is None else "70%"}};">
 
             <div style="height: 10vh; border: solid rgba(0, 0, 0, 0.274);">
                 <img src="\static\beli.png" alt="beli" style="height: 50%; ">{{igra.player1}}
@@ -108,6 +110,21 @@
 
         </div>
 
+        % if not argumenti["uporabnik"] is None:
+        <div style="width: 70%;">
+        <div style="height: 5vh;"></div>
+
+        <form action="/shrani-pozicijo/" method="post">
+            <label for="komentar">Komentar:</label>
+            <input type="text" class="form-control" id="komentar" name="komentar" value="{{igra.comment}}">
+            <div style="height: 0.5vh;"></div>
+            <input type="submit" class="btn btn-primary" value="Shrani pozicijo">
+        </form>
+        </div>
+        % else:
+        
+        % end
+
     </div>
 
 
@@ -115,8 +132,7 @@
 </div>
 
 % else:
-<p><br></p>
-<p><br></p>
+<div style="height: 5vh;"></div>
 <div class="card text-center">
     <div class="card-header">
         Dragi {{'uporabnik' if argumenti['uporabnik'] is None else argumenti['uporabnik']}}
@@ -127,10 +143,11 @@
         <a href="/nova-igra/{{argumenti['nasprotnik']}}/{{argumenti['velikost']}}/{{argumenti['tezavnost']}}/"
             class="btn btn-primary">Nova igra</a>
     </div>
+</div>
+% if argumenti['uporabnik'] is None:
+<div style="height: 5vh;"></div>
     <div class="card-footer text-muted">
     </div>
-
-    <p><br></p>
     <div class="card text-center">
         <div class="card-header">
             Dragi uporabnik
@@ -142,6 +159,7 @@
         </div>
         <div class="card-footer text-muted">
     </div>
+% end
 
 
 % end
