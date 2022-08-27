@@ -1,3 +1,4 @@
+import json
 from igra import Game, Uporabnik
 import bottle
 import random
@@ -5,11 +6,8 @@ import os
 
 directory_path = os.getcwd()
 
-#with open("json_datoteke\igre.json", "w") as d:
-#    print("{}", file=d)
-
-
 uporabnik = Uporabnik()
+uporabnik.pocisti()
 argumenti = uporabnik.argumenti
 
 
@@ -47,9 +45,11 @@ def ustvari_novo_igro():
         nasprotnik = "Uporabnik 2"
     else:
         nasprotnik = bottle.request.forms.getunicode("ime")
+        if nasprotnik == "":
+            nasprotnik = "Gost"
 
     uporabnik = (
-        f"Uporabnik {'1' if nasprotnik == 'Uporabnik 2' else ''}"
+        f"Uporabnik{' 1' if nasprotnik == 'Uporabnik 2' else ''}"
         if argumenti["uporabnik"] is None
         else argumenti["uporabnik"]
     )
@@ -57,7 +57,9 @@ def ustvari_novo_igro():
     # print(nasprotnik)
     r = random.randint(0, 1) if not argumenti["barva"] else argumenti["barva"]
     argumenti["trenutna_igra"] = Game(
-        size_y=argumenti["velikost"],  # to bi se dalo spremeniti <---------------------------
+        size_y=argumenti[
+            "velikost"
+        ],  # to bi se dalo spremeniti <---------------------------
         size_x=argumenti["velikost"],
         player1=uporabnik if r == 1 else nasprotnik,
         player2=nasprotnik if r == 1 else uporabnik,
@@ -74,14 +76,14 @@ def oddaj_potezo(y, x):
 
 
 @bottle.post("/potezo-nazaj/")
-def oddaj_potezo():
+def potezo_nazaj():
     argumenti["trenutna_igra"].take_back()
     # print(argumenti["trenutna_igra"].take_backs)
     bottle.redirect("/trenutna-igra/")
 
 
 @bottle.post("/potezo-naprej/")
-def oddaj_potezo():
+def potezo_naprej():
     argumenti["trenutna_igra"].undo_take_back()
     bottle.redirect("/trenutna-igra/")
 
@@ -91,13 +93,13 @@ def trenutna_igra():
     return bottle.template("trenutna_igra.html", argumenti=argumenti)
 
 
-@bottle.get("/navodila/")
-def nova_igra():
-    return bottle.template("navodila.html", argumenti=argumenti)
+# @bottle.get("/navodila/")
+# def nova_igra():
+#    return bottle.template("navodila.html", argumenti=argumenti)
 
 
 @bottle.get("/uporabniski-racun/")
-def uporabniski_racun():   
+def uporabniski_racun():
     return bottle.template("uporabniski_racun.html", argumenti=argumenti)
 
 
@@ -132,12 +134,12 @@ def uporabniski_racun_registracija():
         bottle.redirect("/uporabniski-racun/")
 
 
-
 @bottle.post("/odjava/")
 def odjava():
     global argumenti, uporabnik
     uporabnik.odjava()
     uporabnik = Uporabnik()
+    uporabnik.pocisti()
     argumenti = uporabnik.argumenti
     bottle.redirect("/uporabniski-racun/")
     # uporabniski_racun()
@@ -163,10 +165,10 @@ def nadaljuj_pozicijo(ime, koda):
 
         if shrani:
             uporabnik.shrani_pozicijo(argumenti["trenutna_igra"].comment)
-        
+
         if izbrisi:
             uporabnik.izbrisi_pozicijo(ime)
-        
+
         if nadaljuj:
             argumenti["trenutna_igra"] = Game(1, 1).import_game(igra)
             bottle.redirect("/trenutna-igra/")
@@ -177,19 +179,18 @@ def nadaljuj_pozicijo(ime, koda):
         assert False
 
 
-
 @bottle.route("/static/zgodovina/<filename>")
 def server_static(filename):
     return bottle.static_file(filename, root=f"{directory_path}\static\zgodovina")
-
 
 
 @bottle.route("/static/<filename>")
 def server_static(filename):
     return bottle.static_file(filename, root=f"{directory_path}\static")
 
-#@bottle.route("/static/<filename>")
-#def server_static(filename):
+
+# @bottle.route("/static/<filename>")
+# def server_static(filename):
 #    return bottle.static_file(filename, root=f"{directory_path}\static")
 
 

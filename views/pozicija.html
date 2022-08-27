@@ -2,12 +2,12 @@
 % # trenutna_igra := True, če se že igra neka igra in False drugače
 
 
-<div class="row" style="width: 70vW; height: 30vh; vertical-align: middle; 
+<div class="row" style="width: 70vW; min-height: 30vh; vertical-align: middle; 
 background-color: rgba(255, 255, 255, 0.26); border: solid black;">
-    <div class="col-0" style="width: 30%">
+    <div class="col-0" style="width: 30vh">
 
         <form action="/nadaljuj-pozicijo/{{ime}}/10/" method="post">
-            <input type="image" style="height: min(25vh, 25vw); padding-top: 5vh;" src="\static\zgodovina\{{ime}}.png" alt="Pozicija je bila shranjena {{igra["date"]}}">
+            <input type="image" style="height: min(25vh, 25vw); padding-top: 4vh;" src="\static\zgodovina\{{ime}}.png" alt="Pozicija je bila shranjena {{igra["date"]}}">
             
         </form>    
     </div>
@@ -57,9 +57,9 @@ background-color: rgba(255, 255, 255, 0.26); border: solid black;">
                     <input type="submit" class="btn btn-primary btn-sm" value="Izbriši">
                 </form>
             </div>
-
+            
+        <p></p>
         </div>
-
     </div>
 
 </div>

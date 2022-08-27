@@ -73,6 +73,9 @@
             % if argumenti["napacno_geslo"] % 3 == 0:
             <p><i style="color: red;">Geslo in ponovljeno geslo se ne ujemata.</i></p>
             % end
+            % if argumenti["napacno_geslo"] % 7 == 0:
+            <p><i style="color: red;">Uporabniška imena "Uporabnik", "Uporabnik 1", "Uporabnik 2", "Gost" in "Računalnik, težavnostna stopnja x" (x je število od 1 do 10) so prepovedana.</i></p>
+            % end
 
             <input type="submit" class="btn btn-primary" value="Registacija">
         </div>
