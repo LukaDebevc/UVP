@@ -9,9 +9,10 @@
     <div class="col" style="width: {{f'min({(60/igra.x*igra.y)}vw, {(90/igra.y*igra.y)})vh'}}">
 
         <div class="grid-container"
-            style="display: grid; justify-content: center; grid: {{f'min({(60/igra.x)}vw, {(90/igra.y)}vh) ' * igra.y}}/ {{f'min({(60/igra.x)}vw, {(90/igra.y)}vh) ' * igra.x}}; padding: 10px;">
-
-
+            style="display: grid; justify-content: center; 
+            grid: {{f'min({(60/igra.x)}vw, {(90/igra.y)}vh) ' * igra.y}}/ 
+            {{f'min({(60/igra.x)}vw, {(90/igra.y)}vh) ' * igra.x}}; 
+            padding: 10px;">
 
             % for i in range(igra.y):
             % for j in range(igra.x):
@@ -53,7 +54,8 @@
 
                                     
                 % if len(igra.move_sequence) != igra.y * igra.x:
-                <p>Na potezi: <b style="color: rgba(197, 16, 16, 0.877);">{{igra.player1 if igra.which_player() == 1 else igra.player2}}</b></p>
+                <p>Na potezi: <b style="color: rgba(197, 16, 16, 0.877);">
+                    {{igra.player1 if igra.which_player() == 1 else igra.player2}}</b></p>
                 
                 <div style="border: solid rgba(0, 0, 0, 0.274);">
                 <p>Naslednji kamen</p>
@@ -75,16 +77,19 @@
                 % else:
                 <p><b style="color: rgba(197, 16, 16, 0.877);">Konec igre</b></p>
                 % if igra.points[0] == igra.points[1]: 
-                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">REMI</b></p>
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); 
+                font-size: large;">REMI</b></p>
                 % elif igra.points[0] > igra.points[1]: 
-                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">ZMAGA: {{igra.player1}}</b></p>
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); 
+                font-size: large;">ZMAGA: {{igra.player1}}</b></p>
                 % else:
-                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); font-size: large;">ZMAGA: {{igra.player2}}</b></p>
+                <p>Rezultat: <b style="color: rgba(197, 16, 16, 0.877); 
+                font-size: large;">ZMAGA: {{igra.player2}}</b></p>
                 % end
                 % end
 
                 <div class="row"  vertical-align: middle;">
-                % if igra.move_sequence:
+                % if 0 < len(igra.move_sequence) > (-1 if igra.ai_move is None else igra.ai_move):
                 <div class="col">
                 <form action="/potezo-nazaj/" method="post">
                     <input type="submit" class="btn btn-primary" value="⇦" style="font-size: large;">
@@ -102,12 +107,10 @@
                 </div>
             </div>
             <p></p>
-            
 
             <div style="height: 10vh; border: solid rgba(0, 0, 0, 0.274);;">
                 <img src="\static\crni.png" alt="črni" style="height: 50%; ">{{igra.player2}}
             </div>
-
         </div>
 
         % if not argumenti["uporabnik"] is None:
@@ -121,14 +124,8 @@
             <input type="submit" class="btn btn-primary" value="Shrani pozicijo">
         </form>
         </div>
-        % else:
-        
         % end
-
     </div>
-
-
-
 </div>
 
 % else:
@@ -154,7 +151,8 @@
         </div>
         <div class="card-body">
             <h5 class="card-title">Trenutno ni nihče prijavljen.</h5>
-            <p class="card-text">Če ste pričakovali nedokončano igro igrano pod vašim uporabniškim računom se lahko prijavite.</p>
+            <p class="card-text">Če ste pričakovali nedokončano igro igrano 
+                pod vašim uporabniškim računom, se lahko prijavite.</p>
             <a href="/uporabniski-racun/" class="btn btn-primary">Prijava</a>
         </div>
         <div class="card-footer text-muted">

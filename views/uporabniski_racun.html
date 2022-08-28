@@ -1,24 +1,28 @@
 % rebase('base.html')
-<p><i>Prijava omogoča shranjevanje pozicij med igro. Vse stvari so shranjene izključno na tej napravi.</i><br></p>
+<p><i>Prijava omogoča shranjevanje pozicij med igro. 
+    Vse stvari so shranjene izključno na tej napravi.</i><br></p>
 
 <form action="/prijava/" method="post">
     <div style="width: 65vw; margin-left: auto; margin-right: auto;">
         <h3>Prijava</h3>
         <div
-            style="border: solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.3); border-radius: 1vw; padding: 2vh;">
+            style="border: solid rgba(0, 0, 0, 0.2); 
+            background-color: rgba(255, 255, 255, 0.3); border-radius: 1vw; padding: 2vh;">
             <div class="mb-3 row" style="width: 80%;">
                 <p></p>
-                <label for="uporabniskoIme" class="col-sm-2 col-form-label" style="padding-right: 2vW;">Uporabniško
-                    ime</label>
+                <label for="uporabniskoIme" class="col-sm-2 col-form-label" 
+                style="padding-right: 2vW;">Uporabniško ime</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="uporabniskoIme" name="uporabniskoIme"
                         style="margin-left: 5vw;">
                 </div>
             </div>
             <div class="mb-3 row" style="width: 80%;">
-                <label for="geslo" class="col-sm-2 col-form-label" style="padding-right: 2vW;">Geslo</label>
+                <label for="geslo" class="col-sm-2 col-form-label" 
+                style="padding-right: 2vW;">Geslo</label>
                 <div class="col-sm-10">
-                    <input type="password" class="form-control" id="geslo" name="geslo" style="margin-left: 5vw;">
+                    <input type="password" class="form-control" id="geslo" 
+                    name="geslo" style="margin-left: 5vw;">
                 </div>
             </div>
 
@@ -28,7 +32,7 @@
 
             % if argumenti["napacno_geslo"] == 5:
             <p><i style="color: red;">Uporabniški račun s navedenim uporabniškim imenom ne obstaja.
-                    Če želite uporabniški račun s takim imenom se lahko registrirate.</i></p>
+                    Če želite uporabniški račun s takim imenom, se lahko registrirate.</i></p>
             % end
 
             <input type="submit" class="btn btn-primary" value="Prijava">
@@ -41,26 +45,29 @@
     <div style="width: 65vw; margin-left: auto; margin-right: auto;">
         <h3>Registracija</h3>
         <div
-            style="border: solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.3); border-radius: 1vw; padding: 2vh;">
+            style="border: solid rgba(0, 0, 0, 0.2); 
+            background-color: rgba(255, 255, 255, 0.3); border-radius: 1vw; padding: 2vh;">
             <div class="mb-3 row" style="width: 80%;">
                 <p></p>
-                <label for="uporabniskoIme" class="col-sm-2 col-form-label" style="padding-right: 2vW;">Uporabniško
-                    ime</label>
+                <label for="uporabniskoIme" class="col-sm-2 col-form-label" 
+                style="padding-right: 2vW;">Uporabniško ime</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="uporabniskoIme" name="uporabniskoIme"
                         style="margin-left: 5vw;">
                 </div>
             </div>
             <div class="mb-3 row" style="width: 80%;">
-                <label for="geslo" class="col-sm-2 col-form-label" style="padding-right: 2vW;">Geslo</label>
+                <label for="geslo" class="col-sm-2 col-form-label" 
+                style="padding-right: 2vW;">Geslo</label>
                 <div class="col-sm-10">
-                    <input type="password" class="form-control" id="geslo" name="geslo" style="margin-left: 5vw;">
+                    <input type="password" class="form-control" id="geslo" 
+                    name="geslo" style="margin-left: 5vw;">
                 </div>
             </div>
 
             <div class="mb-3 row" style="width: 80%;">
-                <label for="ponovnoGeslo" class="col-sm-2 col-form-label" style="padding-right: 2vW;">Ponovi
-                    geslo</label>
+                <label for="ponovnoGeslo" class="col-sm-2 col-form-label" 
+                style="padding-right: 2vW;">Ponovi geslo</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="ponovnoGeslo" name="ponovnoGeslo"
                         style="margin-left: 5vw;">
@@ -74,7 +81,8 @@
             <p><i style="color: red;">Geslo in ponovljeno geslo se ne ujemata.</i></p>
             % end
             % if argumenti["napacno_geslo"] % 7 == 0:
-            <p><i style="color: red;">Uporabniška imena "Uporabnik", "Uporabnik 1", "Uporabnik 2", "Gost" in "Računalnik, težavnostna stopnja x" (x je število od 1 do 10) so prepovedana.</i></p>
+            <p><i style="color: red;">Uporabniška imena "Uporabnik", "Uporabnik 1", "Uporabnik 2", 
+                "Gost" in "Računalnik, težavnostna stopnja x" (x je število od 1 do 10) so prepovedana.</i></p>
             % end
 
             <input type="submit" class="btn btn-primary" value="Registacija">

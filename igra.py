@@ -56,7 +56,7 @@ class Game:
 
         self.ai_move = ai_move
         self.ai = ai_version if not ai_move is None else False
-        self.points = [0, 0]
+        self.points = [0, 1]
 
         if self.ai_move:
             self.loop()  # uprašaj robota za prvo potezo
@@ -118,9 +118,7 @@ class Game:
         li = []
         while len(self.move_sequence) != self.game_length:
             if self.is_ai_move() and not li:
-                li = robot.ai(
-                    self.move_sequence, self.y, self.x, self.ai
-                )
+                li = robot.ai(self.move_sequence, self.y, self.x, self.ai)
             elif li:
                 y, x = li.pop()
                 self.move(y, x)
@@ -133,26 +131,28 @@ class Game:
         # ai_move je beli := 1 in crni := -1 in beli ima prvo potezo
 
         while len(self.move_sequence) > (-1 if self.ai_move is None else self.ai_move):
+
             self.take_backs.append(self.move_sequence.pop())
             self.points[
                 self.which_player(len(self.move_sequence)) // 2
             ] -= self.take_backs[-1][2]
             self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
-            if not self.is_ai_move(len(self.move_sequence)) or (
-                not self.ai_move is None
-            ):
+            if not self.is_ai_move(len(self.move_sequence)):
                 break
             self.save()
         else:
             return 0
 
     def undo_take_back(self):
-        c = self.which_stone()
-        self.move_sequence.append(self.take_backs.pop())
-        self.board[self.move_sequence[-1][0]][self.move_sequence[-1][1]] = c
-        self.points[
-            self.which_player(len(self.move_sequence)) // 2
-        ] += self.move_sequence[-1][2]
+        while True:
+            c = self.which_stone()
+            self.move_sequence.append(self.take_backs.pop())
+            self.board[self.move_sequence[-1][0]][self.move_sequence[-1][1]] = c
+            self.points[
+                self.which_player(len(self.move_sequence)) // 2
+            ] += self.move_sequence[-1][2]
+            if not self.is_ai_move():
+                break
         self.save()
 
     def import_game(self, dict0):
@@ -408,7 +408,9 @@ class Uporabnik:
 
     def ustvari_novo_igro(self, ime, geslo):
         if self.argumenti["nasprotnik"]:
-            nasprotnik = f"Računalnik, težavnostna stopnja {self.argumenti['tezavnost']}"
+            nasprotnik = (
+                f"Računalnik, težavnostna stopnja {self.argumenti['tezavnost']}"
+            )
         elif self.argumenti["uporabnik"] is None:
             nasprotnik = "Uporabnik 2"
         else:
@@ -424,7 +426,8 @@ class Uporabnik:
                 else:
                     nasprotnik = uporabnik2.ime
                     uporabnik2.shrani_pozicijo(
-                        komentar="Pozicija je bila shranjena avtomatično, saj ste se prijavili kot nadsprotnik drugemu uporabniku."
+                        komentar=("Pozicija je bila shranjena avtomatično, " + 
+                        "saj ste se prijavili kot nasprotnik drugemu uporabniku.")
                     )
         if self.argumenti["velikost"] > 9999:
             y = (self.argumenti["velikost"] % 1000) // 100
@@ -438,7 +441,11 @@ class Uporabnik:
             else self.argumenti["uporabnik"]
         )
 
-        r = random.randint(0, 1) if not self.argumenti["barva"] else self.argumenti["barva"]
+        r = (
+            random.randint(0, 1)
+            if not self.argumenti["barva"]
+            else self.argumenti["barva"]
+        )
         self.argumenti["trenutna_igra"] = Game(
             size_y=y,
             size_x=x,

@@ -1,6 +1,7 @@
 import random
+from multiprocessing import Pool
+from copy import deepcopy
 
-# najzanimivejsi del projektne naloge
 def n_th_stone(n):
     return {1: -1, 2: 0}.get(n, 0 if (n + 1) % 2 == 0 else 1 - (n % 4))
 
@@ -19,7 +20,6 @@ def all_possible_moves(state):
 
 
 def update(state, y, x, points, directions, n, change=True):
-    # to je treba še narediti
     stone = n_th_stone(n)
     color = n_th_color(n)
     for i in range(4):
@@ -27,15 +27,12 @@ def update(state, y, x, points, directions, n, change=True):
             state[i], y, x, points, directions[i], color, stone, change=change
         )
 
-
 def update_one_board(board, y, x, points_diff, directions, color, stone, change=True):
     dy0, dx0 = directions[0]
     dy1, dx1 = directions[1]
 
     a0 = board[y + dy0][x + dx0]
     a1 = board[y + dy1][x + dx1]
-    # if type(a0) == type((0,)) or type(a1) == type((0,)):
-    #    print(a0, a1, board, directions, y, x)
 
     k0 = 0 if a0 is None else a0 * stone
     k1 = 0 if a1 is None else a1 * stone
@@ -151,6 +148,24 @@ def undo(state, move, points, directions):
         board[y][x] = None
 
 
+def continue_search(data):
+    state, i, directions, n_th_move, num_of_moves, difficulty, points, d = data
+    update(state, i[0], i[1], [0, 0, 0, 0], directions, n_th_move, change=True)
+    path = search(
+        state,
+        n_th_move + 1,
+        [i + j for i, j in zip(points, i[2])],
+        directions,
+        d=d - 1,
+        num_of_moves=num_of_moves,
+        difficulty=difficulty,
+    )
+    path[-1].append(i)
+    path[0] += i[-1]
+    undo(state, i, points, directions)
+    return path
+
+
 def search(
     state,
     n_th_move,
@@ -159,24 +174,31 @@ def search(
     d=0,
     num_of_moves=(1,),
     difficulty=10,
-    factor=0,
 ):
     ans0 = []
     color = n_th_color(n_th_move)
     for y, x in all_possible_moves(state):
         diff = [0 for i in range(4)]
         update(state, y, x, diff, directions, n_th_move, change=False)
-        p = (diff[0] * (2 + factor) + diff[1] - diff[2] * (2 + factor) - diff[3]) + color * (
-            min(y, len(state[0]) - 1 - y) / len(state[0])
-            + min(x, len(state[0][0]) - 1 - x) / len(state[0][0])
+        p = (
+            diff[0] * 2
+            + diff[1]
+            - diff[2] * 2
+            - diff[3]
+            + color
+            * (
+                min(y, len(state[0]) - 1 - y) / len(state[0])
+                + min(x, len(state[0][0]) - 1 - x) / len(state[0][0])
+            )
         )
 
         ans0.append([y, x, diff, p])
 
     # random pop
+
     if difficulty != 10:
         random.shuffle(ans0)
-        for i in range(int(len(ans0) * 0.05 * (10 - difficulty))):
+        for i in range(int(len(ans0) * 0.07 * (10 - difficulty))):
             ans0.pop()
 
     ans0.sort(key=lambda x: -color * x[-1])
@@ -186,23 +208,33 @@ def search(
         return [p_0, [ans0[0]]]
 
     ans1 = []
-    for i in ans0:
-        update(state, i[0], i[1], [0, 0, 0, 0], directions, n_th_move, change=True)
-        # print([i + j for i, j in zip(points, i[2])])
-        path = search(
-            state,
-            n_th_move + 1,
-            [i + j for i, j in zip(points, i[2])],
-            directions,
-            d=d - 1,
-            num_of_moves=num_of_moves,
-            difficulty=difficulty,
-            factor=factor,
-        )
-        path[-1].append(i)
-        path[0] += i[-1]
-        ans1.append(path)
-        undo(state, i, points, directions)
+    if d + 1 != len(num_of_moves):
+        for i in ans0:
+            ans1.append(
+                continue_search(
+                    (
+                        state,
+                        i,
+                        directions,
+                        n_th_move,
+                        num_of_moves,
+                        difficulty,
+                        points,
+                        d,
+                    )
+                )
+            )
+    else:
+        all_data = [
+            deepcopy(
+                (state, i, directions, n_th_move, num_of_moves, difficulty, points, d)
+            )
+            for i in ans0
+        ]
+        with Pool() as pool:
+            gen = pool.imap_unordered(continue_search, all_data)
+            for i in gen:
+                ans1.append(i)
 
     ans1.sort(key=lambda x: -color * x[0])
     return ans1[0]
@@ -218,16 +250,16 @@ def ai(move_sequence, y_dim, x_dim, difficulty):
     )
 
     num_of_moves_dict = {
-        1: (5, 3, 3),
-        2: (5, 4, 3),
-        3: (6, 4, 3),
-        4: (6, 4, 3, 3),
-        5: (7, 4, 3, 3),
-        6: (7, 4, 3, 3, 3),
-        7: (7, 4, 3, 3, 3, 3),
-        8: (8, 4, 3, 3, 3, 3),
-        9: (8, 4, 3, 3, 3, 3, 3),
-        10: (8, 5, 4, 4, 4, 3, 3, 3),
+        1: (4, 4, 4, 5),
+        2: (4, 5, 4, 6),
+        3: (5, 5, 5, 6),
+        4: (5, 6, 5, 7),
+        5: (5, 6, 6, 8),
+        6: (6, 7, 7, 8),
+        7: (7, 8, 7, 8),
+        8: (7, 8, 7, 10),
+        9: (8, 8, 8, 10),
+        10: (8, 10, 8, 10),
     }
 
     state = [
@@ -256,15 +288,13 @@ def ai(move_sequence, y_dim, x_dim, difficulty):
         len(num_of_moves_dict[difficulty]) - 1,
         num_of_moves_dict[difficulty],
         difficulty,
-        len(move_sequence) / x_dim / y_dim,
     )
     re = []
     color = n_th_color(len(move_sequence))
-    print(p)
     for i, j in enumerate(reversed(p[1])):
-        print(i)
         if color == n_th_color(len(move_sequence) + i):
             re.append((j[0] - 1, j[1] - 1))
         else:
             break
+
     return list(reversed(re))

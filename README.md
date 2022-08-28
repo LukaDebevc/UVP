@@ -2,7 +2,7 @@
 
 ### Vsebina
 
-Igra z izmišljenimi pravili za namen te projektne naloge (pravila se nahajajo v programu samem).
+Izmišljena igra, narejena za namen te projektne naloge (pravila igre se nahajajo v programu samem).
 
 ### Začetek
 
