@@ -47,7 +47,7 @@ class Game:
         self.player2 = player2
         self.y = size_y
         self.x = size_x
-        self.board = [[None for i in range(self.y)] for j in range(self.x)]
+        self.board = [[None for i in range(self.x)] for j in range(self.y)]
 
         self.move_sequence = []
         self.take_backs = []
@@ -392,16 +392,17 @@ class Uporabnik:
         with open(datoteka2) as racuni:
             racuni = json.load(racuni)
 
-        igralec = False
+        igralec = 1
         if racuni.get(nazadnje["player1"], False):
-            igralec = 1
-        elif racuni.get(nazadnje["player2"], False):
-            igralec = 2
+            igralec *= 2
+        if racuni.get(nazadnje["player2"], False):
+            igralec *= 3
 
-        if igralec:
-            ime = (nazadnje["player1"], nazadnje["player2"])[igralec - 1]
-
-            racuni[ime]["argumenti"]["trenutna_igra"] = nazadnje
+        if igralec != 1:
+            if igralec % 2 == 0:
+                racuni[nazadnje["player1"]]["argumenti"]["trenutna_igra"] = nazadnje
+            if igralec % 3 == 0:
+                racuni[nazadnje["player2"]]["argumenti"]["trenutna_igra"] = nazadnje
 
             with open(datoteka2, "w", encoding="UTF-8") as d:
                 print(json.dumps(racuni), file=d)

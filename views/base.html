@@ -38,12 +38,12 @@ Igra se igra na 2n * 2m plošči, v vsako polje gre natanko en kamen.
 Igrata dva igralca (beli in črn), ki se izmenjujeta.
 Vsako potezo igralec položi 1 kamen svoje barve in 1 kamen sive barve.
 Izjema sta 1. in 2. poteza.
-Pri 1. potezi beli položi isključno kamen svoje barve,
-pri 2. potezi črn poleg kamna svoje barve polozi tudi 2 siva kamna.
+Pri 1. potezi beli položi izključno kamen svoje barve,
+pri 2. potezi črn poleg kamna svoje barve položi tudi 2 siva kamna.
 Zmaga tisti igralec, ki ima več povezav.
 Povezavo tvorijo beli in črni kamni, sivi pa ne.
-Povezave tvorijo izklujčno kamni iste barve in te 
-se štejeo v ravnih linijah (po vrsticah, stolpcih in diagonalah).
+Povezave tvorijo izključno kamni iste barve in te 
+se štejejo v ravnih linijah (po vrsticah, stolpcih in diagonalah).
 N kamnov v ravni liniji lastniku prenesejo n(n-1)/2 povezav.</p>
 
 <p><i>Ta igra je izmišljena za namen te projektne naloge.</i></p>
@@ -53,24 +53,31 @@ N kamnov v ravni liniji lastniku prenesejo n(n-1)/2 povezav.</p>
     Ta program se ne povezuje na internet in
     večina ga je dostopna brez registracije.
     Registracija je potrebna le za shranjevanje zgodovine in povezanih prilagoditev
-    (in podatki uprabljeni za registracijo ostanejo izključno na temu računalniku).
+    (in podatki uporabljeni za registracijo ostanejo izključno na temu računalniku).
     Uporabniški vmesnik je lahko včasih neodziven (še posebej po prvi potezi nove igre in v igrah proti robotu na najtežji nastavitvi).
-    Razlog za prvo mi ni znan, razog za drugo pa je, da računalnik išče čim boljšo potezo.</p>	
+    Razlog za prvo mi ni znan, razlog za drugo pa je, da računalnik išče čim boljšo potezo.</p>	
     
     <p>
     Novo igro začnete tako, da kliknete gumb "Nova igra" in izberete željene nastavitve.
     Če je pred tem že bila igrana kakšna igra se pri tem izbriše. Če želite imeti več pozicij shranjenih naenkrat se je potrebno registrirati.
     To dosežete tako, da pritisnete na gumb "Račun" v zgornjem desnem kotu in se registrirate oz. prijavite, če ste že registrirani 
-    (ta gumb izgine med tem, ko je nekdo prijavlje in na mestu tega gumba se pojavi bel kvadrat z uporabniškim imenom in zdraven gumb "Odjava").
+    (ta gumb izgine med tem, ko je nekdo prijavljen in na mestu tega gumba se pojavi bel kvadrat z uporabniškim imenom in zraven gumb "Odjava").
     </p> 
     <p>
     Če ste prijavljeni se igra, ki jo najdete ob pritisku na gumb "Trenutna igra" ob zaprtju programa oz. odjavi samodejno shrani,
-    in jo lahko ob ponovni prijavi najdete s pritiskom na gump "Trenutna igra". Ob ponovni prijavi se igra samodejno nadaljuje.
-    Poleg tega lahko shranite tudi posamezne pozicije s pritsiskom "Shrani pozicijo" v spodnjem desnem delu stani (med tem, ko ste na trenutni igri).
+    in jo lahko ob ponovni prijavi najdete s pritiskom na gumb "Trenutna igra". Ob ponovni prijavi se igra samodejno nadaljuje.
+    Poleg tega lahko shranite tudi posamezne pozicije s pritiskom "Shrani pozicijo" v spodnjem desnem delu stani (med tem, ko ste na trenutni igri).
     Pri tem se bo shranil tudi komentar. Shranjene pozicije lahko najdete v zavihku "Zgodovina".
+    
     </p>
     <p>
-        
+    V zgodovini imajo posamezne pozicije gumbe z tremi ključnimi besedami. "Izbriši" izbriše shranjeno pozicijo iz zgodovine, 
+    "shrani" bo shranilo trenutno igro in "nadaljuj" shranjeno pozicijo premakne v trenutno igro.
+    Shranjene pozicije se ob nadaljni igri ne spremenijo.
+    </p>
+
+    <p>
+    Prijava omogoča tdi igro proti drugi registrirani osebi.
     </p>
     
 
