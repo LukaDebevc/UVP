@@ -71,7 +71,7 @@
 </form>
 </div>
 
-% if argumenti['velikost'] >= 9999:
+% if argumenti['velikost'] > 9999:
 % ustreza = ((argumenti["velikost"] % 1000 // 100) * (argumenti["velikost"] % 100) != 0)
 % ustreza *= ((argumenti["velikost"] % 1000 // 100) * (argumenti["velikost"] % 100) % 4 == 0)
 <form action="/dimenzije/" method="post">
@@ -169,8 +169,9 @@ V nadsprotnem primeru pustite uporabnik kot Gost</i>.
 
 % end
 
-
+% if argumenti["velikost"] <= 9999 or ustreza:
     <div class="d-flex justify-content-center">
         <input class="btn btn-primary btn-lg" type="submit" value="Začni novo igro">
     </div>
+% end
 </form>

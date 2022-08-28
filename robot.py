@@ -1,3 +1,5 @@
+import random
+
 # najzanimivejsi del projektne naloge
 def n_th_stone(n):
     return {1: -1, 2: 0}.get(n, 0 if (n + 1) % 2 == 0 else 1 - (n % 4))
@@ -149,7 +151,16 @@ def undo(state, move, points, directions):
         board[y][x] = None
 
 
-def search(state, n_th_move, points, directions, d=0):
+def search(
+    state,
+    n_th_move,
+    points,
+    directions,
+    d=0,
+    num_of_moves=(1,),
+    difficulty=10,
+    factor=0,
+):
     ans0 = []
     color = n_th_color(n_th_move)
     for y, x in all_possible_moves(state):
@@ -161,15 +172,18 @@ def search(state, n_th_move, points, directions, d=0):
         )
 
         ans0.append([y, x, diff, p])
+
+    # random pop
+    if difficulty != 10:
+        random.shuffle(ans0)
+        for i in range(int(len(ans0) * 0.05 * (10 - difficulty))):
+            ans0.pop()
+
     ans0.sort(key=lambda x: -color * x[-1])
-    # 5 ?
-    ans0 = ans0[:5]
-    # print(color, ans0)
+    ans0 = ans0[: num_of_moves[d]]
     if (not d) or len(ans0) == 1:
         ans0[0][-1] = (p_0 := sum(a[-1] for a in ans0) / len(ans0))
         return [p_0, [ans0[0]]]
-        p = sum(a[-1][-1] for a in ans0) / 5
-    
 
     ans1 = []
     for i in ans0:
@@ -181,6 +195,9 @@ def search(state, n_th_move, points, directions, d=0):
             [i + j for i, j in zip(points, i[2])],
             directions,
             d=d - 1,
+            num_of_moves=num_of_moves,
+            difficulty=difficulty,
+            factor=factor,
         )
         path[-1].append(i)
         path[0] += i[-1]
@@ -199,6 +216,20 @@ def ai(move_sequence, y_dim, x_dim, difficulty):
         ((0, 1), (0, -1)),
         ((-1, 1), (1, -1)),
     )
+
+    num_of_moves_dict = {
+        1: (5, 3, 3),
+        2: (5, 4, 3),
+        3: (6, 4, 3),
+        4: (6, 4, 3, 3),
+        5: (7, 4, 3, 3),
+        6: (7, 4, 3, 3, 3),
+        7: (7, 4, 3, 3, 3, 3),
+        8: (8, 4, 3, 3, 3, 3),
+        9: (8, 4, 3, 3, 3, 3, 3),
+        10: (8, 5, 4, 4, 4, 3, 3, 3),
+    }
+
     state = [
         [
             [
@@ -217,7 +248,16 @@ def ai(move_sequence, y_dim, x_dim, difficulty):
         y, x, z = j
         update(state, y + 1, x + 1, points, directions, i)
 
-    p = search(state, len(move_sequence), points, directions, d=6)
+    p = search(
+        state,
+        len(move_sequence),
+        points,
+        directions,
+        len(num_of_moves_dict[difficulty]) - 1,
+        num_of_moves_dict[difficulty],
+        difficulty,
+        len(move_sequence) / x_dim / y_dim,
+    )
     re = []
     color = n_th_color(len(move_sequence))
     print(p)

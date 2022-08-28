@@ -3,6 +3,7 @@ import json
 import robot
 from PIL import Image
 import os
+import random
 
 
 def n_to_pra(n, pra=[3, 2]):
@@ -38,7 +39,6 @@ class Game:
         player2=None,
         ai_move=None,
         ai_version=None,
-        starting_points=None,
     ):
         self.date = str(datetime.now())
         self.name = None
@@ -56,11 +56,7 @@ class Game:
 
         self.ai_move = ai_move
         self.ai = ai_version if not ai_move is None else False
-
-        if starting_points is None:
-            self.points = [0, 0]
-        else:
-            self.points = starting_points
+        self.points = [0, 0]
 
         if self.ai_move:
             self.loop()  # uprašaj robota za prvo potezo
@@ -75,7 +71,6 @@ class Game:
         return c - 1
 
     def update_points(self, y, x):
-        # directions = [(i, j) for i in range(-1, 2) for j in range(-1, 2) if not (i == 0 == j)]
         if self.board[y][x] == 0:
             return 0
 
@@ -125,7 +120,7 @@ class Game:
             if self.is_ai_move() and not li:
                 li = robot.ai(
                     self.move_sequence, self.y, self.x, self.ai
-                )  # _________________________________________________ ALI BO TO OK !!
+                )
             elif li:
                 y, x = li.pop()
                 self.move(y, x)
@@ -150,23 +145,14 @@ class Game:
             self.save()
         else:
             return 0
-        # else:
-        #     self.take_backs.append(self.move_sequence.pop())
-        #     self.points[
-        #         (self.which_player(len(self.move_sequence)) - 1) // 2
-        #     ] -= self.take_backs[-1][2]
-        #     self.board[self.take_backs[-1][0]][self.take_backs[-1][1]] = None
 
     def undo_take_back(self):
-        # while self.take_backs:
         c = self.which_stone()
         self.move_sequence.append(self.take_backs.pop())
         self.board[self.move_sequence[-1][0]][self.move_sequence[-1][1]] = c
         self.points[
             self.which_player(len(self.move_sequence)) // 2
         ] += self.move_sequence[-1][2]
-        #    if not self.is_ai_move():
-        #        break
         self.save()
 
     def import_game(self, dict0):
@@ -270,7 +256,6 @@ class Uporabnik:
                     )
 
                 with open(datoteka2) as d:
-                    # self.vsa_zgodovina = json.loads("".join(d.readlines()))
                     self.vsa_zgodovina = json.load(d)
 
                 self.argumenti["zgodovina"] = self.vrni_igre
@@ -420,3 +405,46 @@ class Uporabnik:
                 print(json.dumps(odlozisce), file=trenutno)
 
             self.pocisti()
+
+    def ustvari_novo_igro(self, ime, geslo):
+        if self.argumenti["nasprotnik"]:
+            nasprotnik = f"Računalnik, težavnostna stopnja {self.argumenti['tezavnost']}"
+        elif self.argumenti["uporabnik"] is None:
+            nasprotnik = "Uporabnik 2"
+        else:
+            if ime == "Gost":
+                nasprotnik = "Gost"
+            else:
+                uporabnik2 = Uporabnik()
+                self.argumenti["napacno_geslo"] = (
+                    napaka := uporabnik2.prijava(ime, geslo)
+                )
+                if napaka:
+                    return 1
+                else:
+                    nasprotnik = uporabnik2.ime
+                    uporabnik2.shrani_pozicijo(
+                        komentar="Pozicija je bila shranjena avtomatično, saj ste se prijavili kot nadsprotnik drugemu uporabniku."
+                    )
+        if self.argumenti["velikost"] > 9999:
+            y = (self.argumenti["velikost"] % 1000) // 100
+            x = self.argumenti["velikost"] % 100
+        else:
+            y = x = self.argumenti["velikost"]
+
+        uporabnik_ime = (
+            f"Uporabnik{' 1' if nasprotnik == 'Uporabnik 2' else ''}"
+            if self.argumenti["uporabnik"] is None
+            else self.argumenti["uporabnik"]
+        )
+
+        r = random.randint(0, 1) if not self.argumenti["barva"] else self.argumenti["barva"]
+        self.argumenti["trenutna_igra"] = Game(
+            size_y=y,
+            size_x=x,
+            player1=uporabnik_ime if r == 1 else nasprotnik,
+            player2=nasprotnik if r == 1 else uporabnik_ime,
+            ai_move=1 - 2 * r if self.argumenti["nasprotnik"] else None,
+            ai_version=self.argumenti["tezavnost"],
+        )
+        return 2

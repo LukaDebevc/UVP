@@ -1,4 +1,3 @@
-import json
 from igra import Game, Uporabnik
 import bottle
 import random
@@ -13,10 +12,6 @@ argumenti = uporabnik.argumenti
 
 @bottle.get("/")
 def osnovni_zaslon():
-    # c = bottle.request.query
-    # c = bottle.request.query.getunicode()
-    # print(c)
-    # bottle.redirect()
     return bottle.template("osnovni_zaslon.html", argumenti=argumenti)
 
 
@@ -66,53 +61,16 @@ def dimenzije():
 
 @bottle.post("/ustvari-novo-igro/")
 def ustvari_novo_igro():
-    global uporabnik
-    if argumenti["nasprotnik"]:
-        nasprotnik = f"Računalnik, težavnostna stopnja {argumenti['tezavnost']}"
-    elif argumenti["uporabnik"] is None:
-        nasprotnik = "Uporabnik 2"
-    else:
-        ime = bottle.request.forms.getunicode("uporabniskoIme")
-        if ime == "Gost":
-            nasprotnik = "Gost"
-        else:
-            geslo = bottle.request.forms.getunicode("geslo")
-            uporabnik2 = Uporabnik()
-            uporabnik.argumenti["napacno_geslo"] = (
-                napaka := uporabnik2.prijava(ime, geslo)
-            )
-            if napaka:
-                bottle.redirect(
-                    f"/nova-igra/{argumenti['tezavnost'] if argumenti['nasprotnik'] else 0}/{argumenti['velikost']}/{argumenti['barva']}/"
-                )
-            else:
-                nasprotnik = uporabnik2.ime
-                uporabnik2.shrani_pozicijo(
-                    komentar="Pozicija je bila shranjena avtomatično, saj ste se prijavili kot nadsprotnik drugemu uporabniku."
-                )
-    if argumenti["velikost"] > 9999:
-        y = (argumenti["velikost"] % 1000) // 100
-        x = argumenti["velikost"] % 100
-    else:
-        y = x = argumenti["velikost"]
-
-    uporabnik_ime = (
-        f"Uporabnik{' 1' if nasprotnik == 'Uporabnik 2' else ''}"
-        if argumenti["uporabnik"] is None
-        else argumenti["uporabnik"]
+    re = uporabnik.ustvari_novo_igro(
+        bottle.request.forms.getunicode("uporabniskoIme"),
+        bottle.request.forms.getunicode("geslo"),
     )
-
-    # print(nasprotnik)
-    r = random.randint(0, 1) if not argumenti["barva"] else argumenti["barva"]
-    argumenti["trenutna_igra"] = Game(
-        size_y=y,
-        size_x=x,
-        player1=uporabnik_ime if r == 1 else nasprotnik,
-        player2=nasprotnik if r == 1 else uporabnik_ime,
-        ai_move=1 - 2 * r if argumenti["nasprotnik"] else None,
-        ai_version=argumenti["tezavnost"],
-    )
-    bottle.redirect("/trenutna-igra/")
+    if re == 1:
+        bottle.redirect(
+            f"/nova-igra/{argumenti['tezavnost'] if argumenti['nasprotnik'] else 0}/{argumenti['velikost']}/{argumenti['barva']}/"
+        )
+    elif re == 2:
+        bottle.redirect("/trenutna-igra/")
 
 
 @bottle.post("/oddaj-potezo/<y:int>/<x:int>/")
@@ -124,7 +82,6 @@ def oddaj_potezo(y, x):
 @bottle.post("/potezo-nazaj/")
 def potezo_nazaj():
     argumenti["trenutna_igra"].take_back()
-    # print(argumenti["trenutna_igra"].take_backs)
     bottle.redirect("/trenutna-igra/")
 
 
@@ -137,11 +94,6 @@ def potezo_naprej():
 @bottle.get("/trenutna-igra/")
 def trenutna_igra():
     return bottle.template("trenutna_igra.html", argumenti=argumenti)
-
-
-# @bottle.get("/navodila/")
-# def nova_igra():
-#    return bottle.template("navodila.html", argumenti=argumenti)
 
 
 @bottle.get("/uporabniski-racun/")
