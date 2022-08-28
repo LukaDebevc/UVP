@@ -166,7 +166,7 @@ def search(
     for y, x in all_possible_moves(state):
         diff = [0 for i in range(4)]
         update(state, y, x, diff, directions, n_th_move, change=False)
-        p = (diff[0] * 2 + diff[1] - diff[2] * 2 - diff[3]) + color * (
+        p = (diff[0] * (2 + factor) + diff[1] - diff[2] * (2 + factor) - diff[3]) + color * (
             min(y, len(state[0]) - 1 - y) / len(state[0])
             + min(x, len(state[0][0]) - 1 - x) / len(state[0][0])
         )
